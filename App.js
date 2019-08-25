@@ -36,9 +36,9 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isLoading: true,
+      isLoading: false,
       Questions: [],
-      QuizWorking: true,
+      QuizWorking: false,
       currentQuestionIndex: 0,
       Score: 0,
       QuestionAnswered: false,
@@ -47,7 +47,7 @@ class App extends Component {
     }
   }
   componentDidMount() {
-    this.getQuestions();
+    // this.getQuestions();
 
   }
   startTime = () => {
@@ -84,7 +84,7 @@ class App extends Component {
   getQuestions = () => {
     this.setState({ isLoading: true }, () => {
 
-      fetch("https://opentdb.com/api.php?amount=10&category=9&difficulty=easy&type=multiple&encode=base64")
+      fetch("https://opentdb.com/api.php?amount=10&category=9&difficulty=easy&type=multiple")
         .then((response) => response.json())
         .then((responseJson) => {
           console.log("TAG", "responseJson", responseJson)
@@ -148,7 +148,7 @@ class App extends Component {
 
       <View style={{ width: "90%", height: "80%", marginTop: Height * .1, alignItems: "flex-start", backgroundColor: "#fff" }}>
         <Text>
-          {(currentQuestionIndex+1)+" - "+atob(currentQuestion.question)}
+          {(currentQuestionIndex+1)+" - "+(currentQuestion.question)}
         </Text>
         <FlatList
           data={Answers}
@@ -183,7 +183,7 @@ class App extends Component {
                     height: Height * .07,
                     backgroundColor: color
                   }}>
-                  <Text>{atob(item)}</Text>
+                  <Text>{(item)}</Text>
                 </TouchableOpacity>
               )
             }
@@ -198,10 +198,7 @@ class App extends Component {
     let { isLoading, QuizWorking, Questions } = this.state;
     return (
       <View style={{ backgroundColor: "white", flex: 1 }}>
-        {isLoading && <View style={styles.Container}>
-          <ActivityIndicator color="red" size="large" />
-        </View>
-        }
+        
         {QuizWorking && Questions.length > 0 && <View style={[styles.Container, { justifyContent: "flex-start" }]}>
           <View style={{ height: Height * .07, width: "100%", elevation: 5, backgroundColor: "#fff", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 10, flexDirection: "row" }}>
             <Text>Quiz App</Text>
@@ -210,7 +207,7 @@ class App extends Component {
           {this.renderQuestion()}
         </View>
         }
-        {!QuizWorking && <View style={[styles.Container, { justifyContent: "center", }]}>
+        {!QuizWorking &&Questions.length > 0 && <View style={[styles.Container, { justifyContent: "center", }]}>
           <View style={{
             height: Height * .4, width: "90%", elevation: 5, backgroundColor: "#fff",
             alignItems: "center", justifyContent: "space-evenly", paddingHorizontal: 10
@@ -232,6 +229,30 @@ class App extends Component {
 
         </View>
         }
+         {!QuizWorking &&Questions.length == 0 && <View style={[styles.Container, { justifyContent: "center", }]}>
+          <View style={{
+            height: Height * .4, width: "90%", elevation: 5, backgroundColor: "#fff",
+            alignItems: "center", justifyContent: "space-evenly", paddingHorizontal: 10
+          }}>
+           
+            <TouchableOpacity
+              style={{ elevation: 4, borderRadius: 4, backgroundColor: "#fff",padding:6 }}
+              onPress={() => {
+                this.getQuestions()
+              }}
+            >
+              <Text>
+                Start Quiz!
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+        </View>
+        }
+        {isLoading && <View style={[styles.Container,{position:"absolute",zIndex:5}]}>
+          <ActivityIndicator color="red" size="large" />
+        </View>
+        }
       </View>
     );
   }
@@ -244,7 +265,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     width: "100%",
-    height: "100%"
+    height: "100%",
+    zIndex:1
   },
   engine: {
     position: 'absolute',
